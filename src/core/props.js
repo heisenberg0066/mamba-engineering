@@ -29,6 +29,7 @@ export const FLUIDS = [
 const byName = new Map();
 for (const f of FLUIDS) { byName.set(f.id.toLowerCase(), f); (f.aliases || []).forEach(a => byName.set(a.toLowerCase(), f)); }
 export function fluidInfo(name) {
+  if (name && typeof name === 'object' && name.id) return name;
   const f = byName.get(String(name).replace(/^['"]|['"]$/g, '').toLowerCase());
   if (!f) throw new PropError(`Unknown fluid "${name}". Known: ${FLUIDS.map(x => x.id).join(', ')}`);
   return f;

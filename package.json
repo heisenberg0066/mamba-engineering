@@ -1,0 +1,54 @@
+{
+  "name": "mamba-engineering",
+  "productName": "Mamba Engineering",
+  "version": "0.1.0",
+  "description": "Offline engineering workbench: ThermoStudio (thermal-fluid modelling) + MechWorkbench (machine elements) with animated visuals, step-by-step solutions and PDF reports",
+  "author": "Ammar",
+  "license": "MIT",
+  "main": "src/main.cjs",
+  "type": "commonjs",
+  "scripts": {
+    "start": "electron .",
+    "test": "node test/run-tests.mjs",
+    "dist:win": "electron-builder --win --x64 --publish never"
+  },
+  "dependencies": {
+    "coolprop-wasm": "6.6.0",
+    "katex": "^0.16.11"
+  },
+  "devDependencies": {
+    "electron": "33.4.11",
+    "electron-builder": "25.1.8"
+  },
+  "build": {
+    "appId": "com.ammar.mambaengineering",
+    "productName": "Mamba Engineering",
+    "copyright": "Free for personal use",
+    "directories": { "output": "dist", "buildResources": "build" },
+    "files": ["src/**/*", "build/icon.png", "package.json", "examples/**/*", "!**/*.map"],
+    "asar": true,
+    "npmRebuild": false,
+    "win": {
+      "target": [
+        { "target": "nsis", "arch": ["x64"] },
+        { "target": "portable", "arch": ["x64"] },
+        { "target": "zip", "arch": ["x64"] }
+      ],
+      "icon": "build/icon.ico",
+      "signAndEditExecutable": false
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Mamba Engineering",
+      "artifactName": "MambaEngineering-Setup-${version}-x64.${ext}",
+      "deleteAppDataOnUninstall": false
+    },
+    "portable": { "artifactName": "MambaEngineering-Portable-${version}-x64.${ext}" },
+    "artifactName": "MambaEngineering-${version}-win-${arch}.${ext}",
+    "fileAssociations": [{ "ext": "mep", "name": "Mamba Engineering Project", "role": "Editor" }]
+  }
+}

@@ -27,6 +27,11 @@ export async function runSelftest(m) {
     for (const [tpl, shot, key, want, tol] of [['vcr', '03-canvas-refrigeration', 'COP_R', 3.97, 0.05], ['brayton', '03b-canvas-brayton', 'eta_th', 0.426, 0.005]]) {
       cv.fs = TEMPLATES[tpl](); resetIds(cv.fs); m.go('canvas'); await wait(1500); const r = cv.res; log(r?.ok && Math.abs(r.values[key] - want) < tol, `canvas ${tpl}: ${key} = ${r?.values?.[key]?.toFixed(4)} (ref ${want})`); await window.host.capture({ file: shot + '.png' });
     }
+    // languages: Arabic (RTL) and Swedish
+    const setLangUI = async (l) => { const sel = document.querySelector('#topActions select'); sel.value = l; sel.dispatchEvent(new Event('change')); await wait(900); };
+    m.go('heat-wall'); await setLangUI('ar'); log(document.documentElement.dir === 'rtl' && document.body.textContent.includes('المدخلات'), 'Arabic UI with RTL layout'); await window.host.capture({ file: '19-arabic-rtl.png' });
+    m.go('mech-bolt'); await setLangUI('sv'); log(document.body.textContent.includes('Indata'), 'Swedish UI'); await window.host.capture({ file: '20-swedish.png' });
+    await setLangUI('en');
     // PDF report
     cv.fs = TEMPLATES.rankine(); resetIds(cv.fs); m.go('canvas'); await wait(1200);
     const pdf = await window.host.selftestPath('report-canvas.pdf'); const r1 = await m.exportReport(pdf); log(r1 && r1.bytes > 10000, `PDF report canvas (${r1?.bytes} bytes)`);

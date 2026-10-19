@@ -1,0 +1,83 @@
+name: Build Windows
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    timeout-minutes: 60
+    env:
+      CI: 'true'
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validation suite (textbook examples)
+        run: node test/run-tests.mjs
+
+      - name: Build NSIS installer, portable exe and zip
+        run: npx electron-builder --win --x64 --publish never
+
+      - name: Smoke-test the packaged app (every page, PDF export, project round-trip)
+        shell: pwsh
+        run: |
+          $env:MAMBA_SELFTEST = "$env:RUNNER_TEMP\smoke"
+          $p = Start-Process -FilePath "dist\win-unpacked\Mamba Engineering.exe" -PassThru -Wait
+          Get-Content "$env:MAMBA_SELFTEST\mamba-selftest.txt"
+          if ($p.ExitCode -ne 0) { throw "self-test failed ($($p.ExitCode))" }
+          Get-ChildItem $env:MAMBA_SELFTEST
+
+      - name: Install silently and run the installed app's self-test
+        shell: pwsh
+        run: |
+          $setup = Get-ChildItem dist\MambaEngineering-Setup-*.exe | Select-Object -First 1
+          $p = Start-Process -FilePath $setup.FullName -ArgumentList '/S' -Wait -PassThru
+          Write-Host "Setup exit code: $($p.ExitCode)"
+          $exe = "$env:LOCALAPPDATA\Programs\Mamba Engineering\Mamba Engineering.exe"
+          for ($i = 0; $i -lt 30 -and !(Test-Path $exe); $i++) { Start-Sleep 2 }
+          if (!(Test-Path $exe)) { throw "installed exe not found: $exe" }
+          $env:MAMBA_SELFTEST = "$env:RUNNER_TEMP\smoke-installed"
+          $q = Start-Process -FilePath $exe -PassThru -Wait
+          Get-Content "$env:MAMBA_SELFTEST\mamba-selftest.txt" | Select-Object -First 1
+          if ($q.ExitCode -ne 0) { throw "installed app self-test failed ($($q.ExitCode))" }
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: mamba-engineering-windows
+          path: |
+            dist/*.exe
+            dist/*.zip
+          if-no-files-found: error
+
+      - name: Upload smoke-test screenshots and reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: smoke-test-output
+          path: ${{ runner.temp }}/smoke
+
+      - name: Publish GitHub release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Mamba Engineering ${{ github.ref_name }}
+          body_path: RELEASE_NOTES.md
+          files: |
+            dist/MambaEngineering-Setup-*.exe
+            dist/MambaEngineering-Portable-*.exe
+            dist/MambaEngineering-*-win-x64.zip

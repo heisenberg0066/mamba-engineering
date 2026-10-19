@@ -7,7 +7,7 @@ import { createPlot } from '../svgplot.js';
 
 const row = (...k) => h('div', { class: 'row', style: { alignItems: 'flex-start', flexWrap: 'wrap', gap: '10px' } }, ...k);
 const arrow = (x1, y1, x2, y2, color = '#1b2533', w = 2) => { const a = Math.atan2(y2 - y1, x2 - x1), L = 8; return s('g', {}, s('line', { x1, y1, x2, y2, stroke: color, 'stroke-width': w }), s('path', { d: `M${x2},${y2} L${x2 - L * Math.cos(a - 0.4)},${y2 - L * Math.sin(a - 0.4)} L${x2 - L * Math.cos(a + 0.4)},${y2 - L * Math.sin(a + 0.4)} Z`, fill: color })); };
-const playCtl = (ctl, st) => { const b = h('button', { class: 'btn small', onclick: () => { st.play = !st.play; b.textContent = st.play ? '⏸' : '▶'; } }, '⏸'); const sp = h('input', { type: 'range', min: 0, max: 3, step: 0.1, value: 1, oninput: () => st.speed = +sp.value }); ctl.append(b, h('span', {}, t('Speed')), sp); return st; };
+const playCtl = (ctl, st) => { const b = h('button', { class: 'btn small', onclick: () => { st.play = !st.play; b.textContent = st.play ? '❚❚' : '▶'; } }, '❚❚'); const sp = h('input', { type: 'range', min: 0, max: 3, step: 0.1, value: 1, oninput: () => st.speed = +sp.value }); ctl.append(b, h('span', {}, t('Speed')), sp); return st; };
 
 // ---------------- Mohr's circle ----------------
 function mohrViz(el, out, v, ctl) {
@@ -271,13 +271,13 @@ function gearViz(el, out, v, ctl) {
       s('circle', { cx: c1[0], cy: 160, r: r1 * sc, fill: 'none', stroke: '#999', 'stroke-dasharray': '3 3' }), s('circle', { cx: c2[0], cy: 160, r: r2 * sc, fill: 'none', stroke: '#999', 'stroke-dasharray': '3 3' }),
       s('line', { x1: P[0] - L * Math.sin(la), y1: P[1] - L * Math.cos(la), x2: P[0] + L * Math.sin(la), y2: P[1] + L * Math.cos(la), stroke: '#e4572e', 'stroke-width': 1.5, 'stroke-dasharray': '6 3' }),
       s('text', { x: P[0] + L * Math.sin(la) + 4, y: P[1] + L * Math.cos(la), 'font-size': 11, fill: '#e4572e' }, t('line of action') + ` (${v.alpha}°)`),
-      arrow(P[0], P[1], P[0], P[1] - 50, '#1b2533', 2.5), s('text', { x: P[0] + 6, y: P[1] - 46, 'font-size': 11 }, `W_t = ${fmt(z.Wt, 4)} N`),
+      arrow(P[0], P[1], P[0], P[1] - 50, '#1b2533', 2.5), s('text', { x: P[0] - 8, y: P[1] - 56, 'text-anchor': 'end', 'font-size': 11 }, `W_t = ${fmt(z.Wt, 4)} N`),
       s('text', { x: 10, y: 18, 'font-size': 12, 'font-weight': 600 }, `z1 = ${z.z1}, z2 = ${z.z2}, m = ${fmt(z.m, 4)} mm, i = ${fmt(z.i, 4)}, a = ${fmt(z.a, 4)} mm`));
   };
   draw(out);
   const loop = animLoop((dt) => {
     if (st.play) st.a += dt * 0.6 * st.speed;
-    const a1 = st.a, a2 = -st.a * z.z1 / z.z2 + Math.PI + (z.z2 % 2 ? 0 : Math.PI / z.z2);
+    const a1 = st.a, a2 = -st.a * z.z1 / z.z2 + Math.PI + Math.PI / z.z2;
     g1.setAttribute('transform', `translate(${c1[0]},${c1[1]}) rotate(${a1 * 180 / Math.PI})`); g2.setAttribute('transform', `translate(${c2[0]},${c2[1]}) rotate(${a2 * 180 / Math.PI})`);
   });
   return { update: draw, stop: loop.stop };
@@ -316,7 +316,7 @@ function springViz(el, out, v, ctl) {
   const loop = animLoop((dt) => {
     if (st.play) st.ph = (st.ph + dt * 0.35 * st.speed) % 1; const f = 0.5 - 0.5 * Math.cos(2 * Math.PI * st.ph);
     const y = z.y * 1.0 * f + (st.ph > 0.999 ? 0 : 0); const L = z.L0 - y;
-    const sc = 250 / z.L0, Hh = L * sc, base = 290, R = Math.min(60, z.D / 2 * sc * 1.0 + 10), w = Math.max(1.5, z.d * sc);
+    const sc = 250 / z.L0, Hh = L * sc, base = 290, R = Math.max(14, Math.min(60, z.D / 2 * sc)), w = Math.max(1.5, Math.min(z.d * sc, 0.45 * Hh / z.Nt));
     let d = ''; const n = z.Nt, N = 240; for (let k = 0; k <= N; k++) { const ph = k / N * n * 2 * Math.PI; const x = 100 + R * Math.sin(ph); const yy = base - (k / N) * Hh; d += (k ? 'L' : 'M') + x.toFixed(1) + ',' + yy.toFixed(1); }
     coil.setAttribute('d', d); coil.setAttribute('stroke-width', w); coil.setAttribute('stroke', thermal(0.3 + 0.7 * (y * z.k) / Math.max(1e-9, z.Ssy * Math.PI * z.d ** 3 / (8 * z.D) )));
     plate.setAttribute('y', base - Hh - 12); txt.textContent = `F = ${fmt(z.k * y, 3)} N, L = ${fmt(L, 3)} mm`;

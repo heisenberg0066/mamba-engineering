@@ -10,8 +10,9 @@ const shotsDir = process.env.MAMBA_SHOTS || '';
 let win;
 
 function createWindow() {
+  const [ww, wh] = (process.env.MAMBA_WINSIZE || '1440x900').split('x').map(Number);
   win = new BrowserWindow({
-    width: 1440, height: 900, minWidth: 1100, minHeight: 700, backgroundColor: '#0f1724', show: !selftestDir || !!process.env.MAMBA_SHOW,
+    width: ww || 1440, height: wh || 900, minWidth: 1100, minHeight: 700, backgroundColor: '#0f1724', show: !selftestDir || !!process.env.MAMBA_SHOW,
     title: 'Mamba Engineering',
     icon: path.join(__dirname, '..', 'build', 'icon.png'),
     webPreferences: { preload: path.join(__dirname, 'preload.cjs'), contextIsolation: true, nodeIntegration: false, sandbox: false },

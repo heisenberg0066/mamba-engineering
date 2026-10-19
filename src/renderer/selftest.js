@@ -1,7 +1,8 @@
 // Built-in smoke test (MAMBA_SELFTEST=dir) and screenshot run (MAMBA_SHOTS=dir).
 import { PAGES } from './pages/index.js';
 import { TEMPLATES, resetIds } from '../thermo/flowsheet.js';
-const wait = (ms) => new Promise(r => setTimeout(r, ms));
+const wait = (ms) => new Promise(r => requestAnimationFrame(() => setTimeout(r, ms)));
+const _w0 = (ms) => new Promise(r => setTimeout(r, ms));
 const SHOTS = { home: '01-home', canvas: '02-canvas-rankine', equations: '04-equation-editor', engines: '05-otto-engine', proptables: '06-property-tables', parametric: '07-parametric', 'heat-wall': '08-composite-wall', 'heat-lumped': '09-lumped-cooling', 'heat-fin': '10-fin', 'mech-mohr': '11-mohr', 'mech-fits': '12-iso286-fits', 'mech-bolt': '13-bolted-joint', 'mech-shaft': '14-shaft-fatigue', 'mech-bearing': '15-bearing', 'mech-gear': '16-spur-gears', 'mech-spring': '17-spring', about: '18-about-validation' };
 export async function runSelftest(m) {
   const lines = []; let ok = true;
@@ -18,6 +19,8 @@ export async function runSelftest(m) {
       if (p.id === 'parametric') { p.runAndDraw?.(); await wait(300); log(p.rows && p.rows.filter(r => r.ok).length >= p.rows.length - 1, `parametric table ${p.rows?.filter(r => r.ok).length}/${p.rows?.length} rows`); }
       if (p.out !== undefined && p.values) log(!!p.out && !p.err, `${p.id} computes${p.err ? ': ' + p.err : ''}`);
       if (SHOTS[p.id]) await window.host.capture({ file: SHOTS[p.id] + '.png' });
+      if (p.id === 'canvas') { const mn = document.getElementById('main'); mn.scrollTop = 560; await wait(500); await window.host.capture({ file: '02b-canvas-diagrams.png' }); mn.scrollTop = 0; }
+      if (p.id === 'heat-wall') { p.values.geometry = 'cylinder'; p.values.r_in = 1.5; p.values.L = 5; p.values.inner = 'Q'; p.values.Q = 80; p.values.T_out = 30; p.values.h_out = 12; p.values.layers = [{ name: 'Plastic insulation (wire)', k: 0.15, t: 2 }]; m.go(p.id); await wait(800); log(Math.abs(p.out.results.r_cr.v - 12.5) < 0.01, `wire insulation r_cr = ${p.out.results.r_cr.v} mm`); await window.host.capture({ file: '08b-pipe-insulation.png' }); p.reset(); }
     }
     // extra canvas screens: refrigeration + Brayton templates
     m.go('canvas'); const cv = m.pageById('canvas');

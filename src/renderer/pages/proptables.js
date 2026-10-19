@@ -11,7 +11,8 @@ export function makePropTablesPage() {
   page.render = (main) => {
     const c = page.cfg; const box = h('div', { class: 'scroll', style: { maxHeight: '560px' } }); const interp = h('div', {});
     const cols = () => c.type.startsWith('sat') ? [[c.type === 'satT' ? 'T' : 'P', c.type === 'satT' ? 'T [°C]' : 'P [kPa]'], [c.type === 'satT' ? 'P' : 'T', c.type === 'satT' ? 'Psat [kPa]' : 'Tsat [°C]'], ['vf', 'vf [m³/kg]'], ['vg', 'vg [m³/kg]'], ['uf', 'uf'], ['ug', 'ug'], ['hf', 'hf [kJ/kg]'], ['hfg', 'hfg'], ['hg', 'hg'], ['sf', 'sf [kJ/kg·K]'], ['sfg', 'sfg'], ['sg', 'sg']] : [['T', 'T [°C]'], ['v', 'v [m³/kg]'], ['u', 'u [kJ/kg]'], ['h', 'h [kJ/kg]'], ['s', 's [kJ/kg·K]']];
-    const cv = (k, x) => k === 'T' ? x - 273.15 : k === 'P' ? x / 1000 : /^[uhs]/.test(k) ? x / 1000 : x;
+    const cv0 = (k, x) => k === 'T' ? x - 273.15 : k === 'P' ? x / 1000 : /^[uhs]/.test(k) ? x / 1000 : x;
+    const cv = (k, x) => { const y = cv0(k, x); return Math.abs(y) < 5e-7 ? 0 : y; };
     let rows = [];
     const build = () => {
       try {
@@ -52,7 +53,7 @@ export function makePropTablesPage() {
     const csv = () => { const cl = cols(); const txt = [cl.map(x => x[1]).join(','), ...rows.map(r => cl.map(([k]) => cv(k, r[k])).join(','))].join('\n'); window.host.saveText({ text: txt, name: `${c.fluid}-${c.type}.csv`, ext: 'csv' }).then(p => p && toast('Saved ' + p)); };
     main.append(h('h1', { class: 'page-title' }, t('Property tables')), h('div', { class: 'page-sub' }, t('Tables are generated from the equation of state (CoolProp, IAPWS-95 / IF97 for water) at textbook-style grid points — not copied from a book. Use them like printed tables, with interpolation shown.')),
       h('div', { class: 'panel' }, h('div', { class: 'row' }, fluidSel, typeSel, pRow, h('span', {}, t('Interpolate at') + ' ' + (c.type === 'satP' ? 'P [kPa]' : 'T [°C]') + ':'), qIn, h('button', { class: 'btn', onclick: csv }, '⬇ CSV'))),
-      h('div', { class: 'grid2', style: { marginTop: '14px', gridTemplateColumns: '1.3fr 1fr' } }, h('div', { class: 'panel' }, box), h('div', { class: 'panel' }, h('h3', {}, t('Interpolation')), interp)));
+      h('div', { class: 'grid2', style: { marginTop: '14px', gridTemplateColumns: '1.3fr 1fr' } }, h('div', { class: 'panel' }, box), h('div', { class: 'panel', style: { overflowX: 'auto', fontSize: '13px' } }, h('h3', {}, t('Interpolation')), interp)));
     build();
   };
   page.getReport = () => ({ title: t('Property table') + ' — ' + page.cfg.fluid, subtitle: page.cfg.type, sections: [{ title: t('Table'), html: document.querySelector('.ptab')?.outerHTML || '' }] });

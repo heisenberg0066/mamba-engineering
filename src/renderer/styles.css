@@ -80,7 +80,8 @@ table.vars { border-collapse: collapse; width: 100%; font-size: 13px; direction:
 .state-table td, .state-table th { white-space: nowrap; }
 .legend text { fill: #34465c; }
 .viz-box { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 8px; direction: ltr; }
-.viz-box svg { width: 100%; height: auto; display: block; }
+.viz-box svg { max-width: 100%; height: auto; display: block; } .viz-box svg:not([width]) { width: 100%; }
+.viz-box .row > div { flex: 1 1 340px; min-width: 280px; } .viz-box .row > svg { flex: 0 0 auto; }
 .toast { position: fixed; bottom: 24px; inset-inline-end: 24px; background: #1b2533; color: #fff; padding: 10px 16px; border-radius: 8px; opacity: 0; transform: translateY(10px); transition: all .3s; z-index: 99; max-width: 460px; } .toast.show { opacity: 1; transform: none; } .toast.error { background: var(--bad); }
 .home-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 14px; }
 .home-card { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 14px; cursor: pointer; transition: all .15s; } .home-card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 4px 14px rgba(15,139,141,.12); }
@@ -92,3 +93,14 @@ table.vars { border-collapse: collapse; width: 100%; font-size: 13px; direction:
 table.ptab { border-collapse: collapse; font-size: 12.5px; direction: ltr; } table.ptab th, table.ptab td { padding: 3px 8px; border-bottom: 1px solid var(--line); text-align: right; font-variant-numeric: tabular-nums; } table.ptab th { background: #f3f6fa; position: sticky; top: 0; } table.ptab tr:hover td { background: #f0f8f8; } table.ptab tr.hl td { background: #fff2cc; }
 .engine-anim { display: grid; grid-template-columns: 260px 1fr 1fr; gap: 10px; align-items: center; }
 @media (max-width: 1300px) { .canvas-layout { grid-template-columns: 130px 1fr 260px; } .grid-viz { grid-template-columns: 1fr; } }
+/* --- additions: home, layers, chips, tables --- */
+.home-card .hc-t { font-weight: 600; margin: 6px 0 4px; } .home-card .hc-d { color: var(--muted); font-size: 13px; line-height: 1.4; }
+.hero-badges { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; } .hero-badges span { background: rgba(255,255,255,0.14); border-radius: 999px; padding: 4px 12px; font-size: 12.5px; }
+.home-h { font-size: 17px; margin: 20px 0 10px; }
+.layers { display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; }
+.layer-row { display: flex; flex-wrap: wrap; gap: 4px 6px; align-items: center; font-size: 12.5px; padding: 6px; border: 1px solid var(--line); border-radius: 8px; }
+.layer-row select { flex: 1 1 calc(100% - 30px); min-width: 0; } .layer-row input { width: 64px !important; } .layer-n { font-weight: 700; color: var(--accent); }
+.btn.small, button.small { padding: 3px 8px; font-size: 12px; }
+.chips { display: inline-flex; flex-wrap: wrap; gap: 4px; } .chip { border: 1px solid var(--line); border-radius: 999px; padding: 2px 8px; font-size: 12px; cursor: pointer; display: inline-flex; gap: 4px; align-items: center; }
+.viz-sub { margin-top: 8px; max-width: 460px; } .mono { font-family: Consolas, monospace; font-size: 12px; }
+.ptab tr.hl td { background: #fff4cc; } .ptab tr.bad td { background: #fde2e1; } .ptab td.src { font-size: 11.5px; color: var(--muted); max-width: 420px; }

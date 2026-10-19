@@ -23,16 +23,39 @@
   "build": {
     "appId": "com.ammar.mambaengineering",
     "productName": "Mamba Engineering",
-    "copyright": "Free for personal use",
-    "directories": { "output": "dist", "buildResources": "build" },
-    "files": ["src/**/*", "build/icon.png", "package.json", "examples/**/*", "!**/*.map"],
+    "copyright": "© 2026 Ammar — MIT licence",
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "src/**/*",
+      "build/icon.png",
+      "package.json",
+      "!**/*.map"
+    ],
     "asar": true,
     "npmRebuild": false,
     "win": {
       "target": [
-        { "target": "nsis", "arch": ["x64"] },
-        { "target": "portable", "arch": ["x64"] },
-        { "target": "zip", "arch": ["x64"] }
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "zip",
+          "arch": [
+            "x64"
+          ]
+        }
       ],
       "icon": "build/icon.ico",
       "signAndEditExecutable": false
@@ -47,8 +70,16 @@
       "artifactName": "MambaEngineering-Setup-${version}-x64.${ext}",
       "deleteAppDataOnUninstall": false
     },
-    "portable": { "artifactName": "MambaEngineering-Portable-${version}-x64.${ext}" },
+    "portable": {
+      "artifactName": "MambaEngineering-Portable-${version}-x64.${ext}"
+    },
     "artifactName": "MambaEngineering-${version}-win-${arch}.${ext}",
-    "fileAssociations": [{ "ext": "mep", "name": "Mamba Engineering Project", "role": "Editor" }]
+    "fileAssociations": [
+      {
+        "ext": "mep",
+        "name": "Mamba Engineering Project",
+        "role": "Editor"
+      }
+    ]
   }
 }

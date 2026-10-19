@@ -32,23 +32,23 @@ function conductionViz(el, out, v, ctl) {
   const draw = (o) => {
     const z = o.viz; pic.replaceChildren(); plots.replaceChildren(); parts = [];
     const allT = [z.Tin, z.Tout, ...z.surf]; const Tmin = Math.min(...allT), Tmax = Math.max(...allT);
-    const W = 620, H = 260; const svg = s('svg', { viewBox: `0 0 ${W} ${H}`, width: '100%', class: 'heat-svg' });
+    const W = 620, H = 280; const svg = s('svg', { viewBox: `0 0 ${W} ${H}`, width: '100%', class: 'heat-svg' });
     const gid = uid(); const stops = [];
     const r0 = z.radii[0], rN = z.radii[z.radii.length - 1];
     for (let k = 0; k <= 40; k++) { const r = r0 + (rN - r0) * k / 40; stops.push({ f: k / 40, r, T: o.viz.profile(r) }); }
     if (z.geo === 'plane') {
       const x0 = 150, x1 = 470;
       svg.append(s('defs', {}, s('linearGradient', { id: gid, x1: 0, x2: 1, y1: 0, y2: 0 }, stops.map(p => s('stop', { offset: p.f, 'stop-color': thermal(norm(p.T, Tmin, Tmax)) })))));
-      svg.append(s('rect', { x: 10, y: 20, width: x0 - 10, height: 200, fill: thermal(norm(z.Tin, Tmin, Tmax)), opacity: 0.25 }), s('rect', { x: x1, y: 20, width: W - 10 - x1, height: 200, fill: thermal(norm(z.Tout, Tmin, Tmax)), opacity: 0.25 }));
-      svg.append(s('rect', { x: x0, y: 20, width: x1 - x0, height: 200, fill: `url(#${gid})` }));
+      svg.append(s('rect', { x: 10, y: 36, width: x0 - 10, height: 200, fill: thermal(norm(z.Tin, Tmin, Tmax)), opacity: 0.25 }), s('rect', { x: x1, y: 36, width: W - 10 - x1, height: 200, fill: thermal(norm(z.Tout, Tmin, Tmax)), opacity: 0.25 }));
+      svg.append(s('rect', { x: x0, y: 36, width: x1 - x0, height: 200, fill: `url(#${gid})` }));
       const X = (r) => x0 + (r - r0) / (rN - r0) * (x1 - x0);
-      z.radii.forEach((r, i) => { svg.append(s('line', { x1: X(r), x2: X(r), y1: 20, y2: 220, stroke: '#1b2533', 'stroke-width': 1.5 })); if (i < z.layers.length) svg.append(s('text', { x: (X(r) + X(z.radii[i + 1])) / 2, y: 240, 'text-anchor': 'middle', 'font-size': 11 }, (v.layers[i].name || '') .slice(0, 16))); });
-      z.surf.forEach((T, i) => svg.append(s('text', { x: X(z.radii[i]), y: 14, 'text-anchor': 'middle', 'font-size': 11, 'font-weight': 600 }, fmt(T, 3) + ' °C')));
+      z.radii.forEach((r, i) => { svg.append(s('line', { x1: X(r), x2: X(r), y1: 36, y2: 236, stroke: '#1b2533', 'stroke-width': 1.5 })); if (i < z.layers.length) { const wpx = X(z.radii[i + 1]) - X(r), nm = (v.layers[i].name || ''); svg.append(s('text', { x: (X(r) + X(z.radii[i + 1])) / 2, y: 252 + (i % 2) * 14, 'text-anchor': 'middle', 'font-size': 11 }, wpx < 70 ? nm.split(/[ (\/]/)[0].slice(0, 10) : nm.slice(0, 20))); } });
+      z.surf.forEach((T, i) => svg.append(s('text', { x: X(z.radii[i]), y: i % 2 ? 29 : 14, 'text-anchor': 'middle', 'font-size': 11, 'font-weight': 600 }, fmt(T, 3) + ' °C')));
       // temperature profile line
-      const Ymap = (T) => 210 - norm(T, Tmin, Tmax) * 180;
+      const Ymap = (T) => 226 - norm(T, Tmin, Tmax) * 180;
       svg.append(s('path', { d: stops.map((p, k) => (k ? 'L' : 'M') + X(p.r).toFixed(1) + ',' + Ymap(p.T).toFixed(1)).join(''), stroke: '#fff', 'stroke-width': 3, fill: 'none' }), s('path', { d: stops.map((p, k) => (k ? 'L' : 'M') + X(p.r).toFixed(1) + ',' + Ymap(p.T).toFixed(1)).join(''), stroke: '#1b2533', 'stroke-width': 1.5, fill: 'none' }));
-      svg.append(s('text', { x: 20, y: 120, 'font-size': 12 }, (v.inner === 'conv' ? 'T∞,i = ' + fmt(z.Tin, 3) : 'Q̇ in') + ' °C'), s('text', { x: x1 + 12, y: 120, 'font-size': 12 }, 'T∞,o = ' + fmt(z.Tout, 3) + ' °C'));
-      for (let k = 0; k < 26; k++) { const c = s('circle', { r: 3.2, class: 'particle', fill: '#ffcf33', stroke: '#a15c00', 'stroke-width': 0.8 }); svg.append(c); parts.push({ c, x: Math.random(), y: 30 + Math.random() * 180 }); }
+      svg.append(s('text', { x: 20, y: 136, 'font-size': 12 }, (v.inner === 'conv' ? 'T∞,i = ' + fmt(z.Tin, 3) : 'Q̇ in') + ' °C'), s('text', { x: x1 + 12, y: 136, 'font-size': 12 }, 'T∞,o = ' + fmt(z.Tout, 3) + ' °C'));
+      for (let k = 0; k < 26; k++) { const c = s('circle', { r: 3.2, class: 'particle', fill: '#ffcf33', stroke: '#a15c00', 'stroke-width': 0.8 }); svg.append(c); parts.push({ c, x: Math.random(), y: 46 + Math.random() * 180 }); }
       const dir = Math.sign(z.Q) || 1;
       loop?.stop(); loop = animLoop((dt) => { const sp = Math.min(0.6, 0.08 + Math.log10(1 + Math.abs(z.Q)) * 0.08); for (const p of parts) { p.x += dir * dt * sp; if (p.x > 1) p.x -= 1; if (p.x < 0) p.x += 1; p.c.setAttribute('cx', 10 + p.x * (W - 20)); p.c.setAttribute('cy', p.y); } });
     } else {
@@ -71,7 +71,7 @@ function conductionViz(el, out, v, ctl) {
     }
     pic.append(svg, legendBar(Tmin, Tmax, '°C', 200));
     if (z.sweep) {
-      const box = h('div', { class: 'viz-sub' }); const pl = createPlot(box, { width: 360, height: 220, xLabel: t('outer radius of last layer') + ' [mm]', yLabel: 'Q̇ [W]', title: t('Critical radius of insulation') });
+      const box = h('div', { class: 'viz-sub' }); const pl = createPlot(box, { width: 360, height: 220, xLabel: t('outer radius of last layer') + ' [mm]', yLabel: z.inner === 'Q' ? 'T₁ [°C]' : 'Q̇ [W]', title: t('Critical radius of insulation') });
       const pts = z.sweep.map(p => [p.r, z.inner === 'Q' ? p.T1 : p.Q]); if (z.inner === 'Q') pl.svg.querySelector('.axis-label') && 0;
       pl.fit([{ pts }]); pl.setBackground([{ pts, color: '#2a6fdb', width: 2 }]); pl.vline(z.rcr * 1000, '#0a7'); pl.marker(z.radii[z.radii.length - 1] * 1000, z.inner === 'Q' ? z.surf[0] : z.Q, '#e4572e', 5);
       plots.append(box);
@@ -108,7 +108,7 @@ function lumpedViz(el, out, v, ctl) {
   let loop, time = 0, playing = true, z;
   const svg = s('svg', { viewBox: '0 0 300 240', width: 300 }); const pb = h('div', {});
   el.append(h('div', { class: 'row', style: { alignItems: 'flex-start', flexWrap: 'wrap' } }, svg, pb));
-  const btn = h('button', { class: 'btn small', onclick: () => { playing = !playing; btn.textContent = playing ? '⏸' : '▶'; } }, '⏸');
+  const btn = h('button', { class: 'btn small', onclick: () => { playing = !playing; btn.textContent = playing ? '❚❚' : '▶'; } }, '❚❚');
   const sl = h('input', { type: 'range', min: 0, max: 1, step: 0.001, value: 0, oninput: () => { time = +sl.value * z.inp.t_end; playing = false; btn.textContent = '▶'; } });
   const lbl = h('span', { class: 'mono' });
   ctl.append(btn, sl, lbl);

@@ -19,7 +19,13 @@ export async function runSelftest(m) {
       if (p.id === 'parametric') { p.runAndDraw?.(); await wait(300); log(p.rows && p.rows.filter(r => r.ok).length >= p.rows.length - 1, `parametric table ${p.rows?.filter(r => r.ok).length}/${p.rows?.length} rows`); }
       if (p.out !== undefined && p.values) log(!!p.out && !p.err, `${p.id} computes${p.err ? ': ' + p.err : ''}`);
       if (SHOTS[p.id]) await window.host.capture({ file: SHOTS[p.id] + '.png' });
-      if (p.id === 'canvas') { const mn = document.getElementById('main'); mn.scrollTop = 560; await wait(500); await window.host.capture({ file: '02b-canvas-diagrams.png' }); mn.scrollTop = 0; }
+      if (p.id === 'canvas') { const mn = document.getElementById('main'); mn.scrollTop = 560; await wait(500); await window.host.capture({ file: '02b-canvas-diagrams.png' }); mn.scrollTop = 0;
+        const tab = [...document.querySelectorAll('#main .tab')].find(e => e.textContent.trim() === 'Parametric sweep'); tab?.click(); await wait(300);
+        const btn = [...document.querySelectorAll('#main button')].find(e => e.textContent.includes('Run sweep')); btn?.click(); await wait(1200);
+        const sw = p.sweep?.rows || []; log(sw.length >= 10 && sw.filter(r => Number.isFinite(r.y)).length >= sw.length - 1, `canvas parametric sweep ${sw.filter(r => Number.isFinite(r.y)).length}/${sw.length} points`);
+        mn.scrollTop = mn.scrollHeight; await wait(600); await window.host.capture({ file: '02c-canvas-sweep.png' }); mn.scrollTop = 0;
+        const n0 = p.fs.components.length; const pal = [...document.querySelectorAll('#main .pal-item')].find(e => e.textContent.includes('Heater')); pal?.dispatchEvent(new MouseEvent('dblclick', { bubbles: true })); await wait(400);
+        log(p.fs.components.length === n0 + 1, 'palette adds a component (double-click)'); p.fs = TEMPLATES.rankine(); resetIds(p.fs); m.go('canvas'); await wait(800); }
       if (p.id === 'heat-wall') { p.values.geometry = 'cylinder'; p.values.r_in = 1.5; p.values.L = 5; p.values.inner = 'Q'; p.values.Q = 80; p.values.T_out = 30; p.values.h_out = 12; p.values.layers = [{ name: 'Plastic insulation (wire)', k: 0.15, t: 2 }]; m.go(p.id); await wait(800); log(Math.abs(p.out.results.r_cr.v - 12.5) < 0.01, `wire insulation r_cr = ${p.out.results.r_cr.v} mm`); await window.host.capture({ file: '08b-pipe-insulation.png' }); p.reset(); }
     }
     // extra canvas screens: refrigeration + Brayton templates

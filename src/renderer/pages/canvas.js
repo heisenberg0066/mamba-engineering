@@ -248,7 +248,8 @@ export function makeCanvasPage() {
       const opts = [];
       for (const c of fsv.components) for (const f of paramSchema(c, fsv.fluid)) if (f.type !== 'select' && (!f.show || f.show(c.params))) opts.push([c.id + '.' + f.key, `${c.id} · ${t(f.label)}`, f]);
       const outs = page.res?.ok ? Object.keys(page.res.values).filter(k => /^(eta_th|COP_R|COP_HP|W_dot|Q_dot|bwr|y_)/.test(k)) : [];
-      const cfg = page.sweepCfg || (page.sweepCfg = { par: opts[0]?.[0], from: 0, to: 0, n: 12, out: outs[0] || 'eta_th' });
+      const cfg = page.sweepCfg || (page.sweepCfg = { par: opts[0]?.[0], from: 0, to: 0, n: 12, out: ['eta_th', 'COP_R', 'COP_HP'].find(k => outs.includes(k)) || outs[0] || 'eta_th' });
+      if (!outs.includes(cfg.out) && outs.length) cfg.out = ['eta_th', 'COP_R', 'COP_HP'].find(k => outs.includes(k)) || outs[0];
       if (!opts.find(o => o[0] === cfg.par)) cfg.par = opts[0]?.[0];
       const cur = () => { const [cid, key] = cfg.par.split('.'); return fsv.components.find(c => c.id === cid).params; };
       if (!cfg.from && !cfg.to && cfg.par) { const v0 = +cur()[cfg.par.split('.')[1]]; cfg.from = +(v0 * 0.5).toPrecision(3); cfg.to = +(v0 * 1.5).toPrecision(3); if (cfg.par.endsWith('eta')) { cfg.from = 0.6; cfg.to = 1; } }

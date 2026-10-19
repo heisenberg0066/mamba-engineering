@@ -137,6 +137,11 @@ for (const [D, g, v] of [[25, 6, 13], [25, 7, 21], [60, 7, 30], [100, 6, 22], [1
   const C = 8, KB = (4 * C + 2) / (4 * C - 3);
   check('spring', 'shear stress τ = K_B·8FD/(πd³) [MPa]', r.results.tau.v, KB * 8 * 50 * 16 / (Math.PI * 8), 1e-6, 'analytic (Bergsträsser factor)'); }
 
+// ---------- shared property API (also used by Mamba FMEA hydraulics) ----------
+check('props', 'water Psat(20 °C) [Pa]', P.prop('Pv', 'Water', { T: 293.15 }), 2339.3, 0.05, 'IAPWS-95 / steam tables: Psat(20 °C) = 2.3393 kPa');
+check('props', 'water μ(20 °C, 1 atm) [Pa·s]', P.prop('mu', 'Water', { T: 293.15, P: 101325 }), 1.0016e-3, 0.2, 'IAPWS 2008 viscosity formulation: 1.0016 mPa·s');
+check('props', 'water ν = μ/ρ (20 °C) [m²/s]', P.prop('nu', 'Water', { T: 293.15, P: 101325 }), 1.0016e-3 / 998.21, 0.2, 'analytic (μ/ρ, ρ = 998.21 kg/m³)');
+
 // ---------- report ----------
 const pad = (s, n) => String(s).padEnd(n);
 let out = `Mamba Engineering validation — ${new Date().toISOString()}\n${results.length} checks, ${fail} failed\n\n`;

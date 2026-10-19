@@ -71,7 +71,9 @@ export function prop(out, fluid, args) {
   const key = out + '|' + f.id + '|' + settings.waterBackend + '|' + settings.refState + '|' + keys.map(k => k + '=' + args[k]).join(',');
   if (cache.has(key)) return cache.get(key);
   let r;
-  if (f.ideal) r = idealProp(out, f, args);
+  if (out === 'nu') r = prop('mu', f, args) / prop('rho', f, args); // kinematic viscosity (shared API with Mamba FMEA hydraulics)
+  else if (out === 'Pv') { if (f.ideal) throw new PropError(`${f.id}: no vapour pressure for an ideal gas`); r = prop('P', f, { T: args.T, x: 0 }); } // vapour pressure at T
+  else if (f.ideal) r = idealProp(out, f, args);
   else r = coolProp(out, f, args, keys);
   if (cache.size > 200000) cache.clear();
   cache.set(key, r);

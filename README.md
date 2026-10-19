@@ -50,7 +50,7 @@ The refrigerant reference state is selectable: IIR, or ASHRAE to match textbook 
 | ![](docs/screenshots/11-mohr.png) Mohr's circle | ![](docs/screenshots/19-arabic-rtl.png) Arabic, right-to-left |
 
 ## Validation
-`npm test` runs **77 checks**, and **all 77 pass**. Each check names its reference:
+`npm test` runs **80 checks**, and **all 80 pass**. Each check names its reference:
 - published textbook worked examples: Çengel & Boles *Thermodynamics*; Çengel & Ghajar *Heat and Mass Transfer*; Shigley's *Mechanical Engineering Design*
 - standard tables: ISO 286, ISO 898-1, ISO 281
 - independent analytic or finite-difference solutions

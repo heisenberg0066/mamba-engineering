@@ -49,7 +49,7 @@ An offline Windows workbench for thermodynamics, heat transfer and machine eleme
 **Every module** has an interactive animated visual, a step-by-step solution (Education mode) or results first (Engineer mode), and a **PDF report**. Projects are saved as `.mep` files.
 
 ### Validation
-`npm test` runs 77 checks against published textbook examples (Çengel & Boles; Çengel & Ghajar; Shigley), standard tables (ISO 286, ISO 898-1, ISO 281) and independent analytic solutions. All 77 pass. See `docs/VALIDATION.md`. The packaged app also runs a built-in self-test in CI on `windows-latest`.
+`npm test` runs 80 checks against published textbook examples (Çengel & Boles; Çengel & Ghajar; Shigley), standard tables (ISO 286, ISO 898-1, ISO 281) and independent analytic solutions. All 80 pass. See `docs/VALIDATION.md`. The packaged app also runs a built-in self-test in CI on `windows-latest`.
 
 ### Known limitations
 - Notebooks and scripting are not in this release.

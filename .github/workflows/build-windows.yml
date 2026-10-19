@@ -44,12 +44,20 @@ jobs:
       - name: Install silently and run the installed app's self-test
         shell: pwsh
         run: |
+          Get-Process 'Mamba Engineering' -ErrorAction SilentlyContinue | Stop-Process -Force
+          Start-Sleep 2
           $setup = Get-ChildItem dist\MambaEngineering-Setup-*.exe | Select-Object -First 1
-          $p = Start-Process -FilePath $setup.FullName -ArgumentList '/S' -Wait -PassThru
-          Write-Host "Setup exit code: $($p.ExitCode)"
           $exe = "$env:LOCALAPPDATA\Programs\Mamba Engineering\Mamba Engineering.exe"
-          for ($i = 0; $i -lt 30 -and !(Test-Path $exe); $i++) { Start-Sleep 2 }
-          if (!(Test-Path $exe)) { throw "installed exe not found: $exe" }
+          for ($try = 1; $try -le 4 -and !(Test-Path $exe); $try++) {
+            $p = Start-Process -FilePath $setup.FullName -ArgumentList '/S' -Wait -PassThru
+            Write-Host "Setup exit code: $($p.ExitCode) (attempt $try)"
+            for ($i = 0; $i -lt 60 -and !(Test-Path $exe); $i++) { Start-Sleep 1 }
+          }
+          if (!(Test-Path $exe)) {
+            Get-WinEvent -FilterHashtable @{ LogName = 'Application'; Id = 1000, 1001 } -MaxEvents 6 -ErrorAction SilentlyContinue | Format-List TimeCreated, Id, Message | Out-String -Width 300 | Write-Host
+            throw "installed exe not found: $exe"
+          }
+          Write-Host "Installed: $exe"
           $env:MAMBA_SELFTEST = "$env:RUNNER_TEMP\smoke-installed"
           $q = Start-Process -FilePath $exe -PassThru -Wait
           Get-Content "$env:MAMBA_SELFTEST\mamba-selftest.txt" | Select-Object -First 1
